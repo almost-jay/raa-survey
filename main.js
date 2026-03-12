@@ -146,6 +146,7 @@
     word-wrap: normal;
     white-space: nowrap;
     direction: ltr;
+    color: #3a6ea5;
   }
 `;
   function getLabels(el) {
