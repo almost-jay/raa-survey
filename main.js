@@ -754,12 +754,12 @@
       if (_config.submitSecret) {
         payload["_secret"] = _config.submitSecret;
       }
-      const resp = await fetch(_config.submitUrl, {
+      await fetch(_config.submitUrl, {
         method: "POST",
+        mode: "no-cors",
         headers: { "Content-Type": "text/plain" },
         body: JSON.stringify(payload)
       });
-      if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
       onSubmitComplete();
     } catch (err) {
       console.error("Submission failed:", err);
@@ -803,6 +803,7 @@
       try {
         await fetch(_config.interviewUrl, {
           method: "POST",
+          mode: "no-cors",
           headers: { "Content-Type": "text/plain" },
           body: JSON.stringify({
             _secret: _config.submitSecret,
