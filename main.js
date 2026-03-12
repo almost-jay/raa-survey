@@ -758,7 +758,6 @@
       await fetch(_config.submitUrl, {
         method: "POST",
         mode: "no-cors",
-        headers: { "Content-Type": "text/plain" },
         body: JSON.stringify(payload)
       });
       onSubmitComplete();
@@ -805,7 +804,6 @@
         await fetch(_config.interviewUrl, {
           method: "POST",
           mode: "no-cors",
-          headers: { "Content-Type": "text/plain" },
           body: JSON.stringify({
             _secret: _config.submitSecret,
             _type: "interview",
