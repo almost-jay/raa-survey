@@ -1,0 +1,787 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Social Comparison</title>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
+  
+  <style>
+    /* ── Reset ── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    /* ── Design tokens ── */
+    :root {
+      --bg:      #f0ede7;
+      --card:    #fafaf8;
+      --border:  #e4e1db;
+      --text:    #2a2a2a;
+      --muted:   #999;
+      --accent:  #3a6ea5;
+      --error:   #b85540;
+      --radius:  10px;
+      --font:    Georgia, "Times New Roman", serif;
+    }
+
+    body {
+      font-family: var(--font);
+      background: var(--bg);
+      min-height: 100vh;
+      padding: 40px 20px 80px;
+      color: var(--text);
+    }
+
+    /* ── Layout shell ── */
+
+    .shell {
+      max-width: 75%;
+      margin: 0 auto;
+    }
+
+    /* ── Restore banner ── */
+
+    .restore-banner {
+      display: none;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 10px 16px;
+      background: #fff8e8;
+      border: 1px solid #e8d88a;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      font-size: 12.5px;
+      color: #7a6020;
+      font-style: italic;
+    }
+    .restore-banner.visible { display: flex; }
+    .restore-banner button {
+      background: none;
+      border: 1px solid #c8b860;
+      border-radius: 5px;
+      padding: 4px 10px;
+      font-family: var(--font);
+      font-size: 12px;
+      color: #7a6020;
+      cursor: pointer;
+    }
+    .restore-banner button:hover { background: #fff3c8; }
+
+    /* ── Progress bar ── */
+
+    .progress-wrap {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 28px;
+    }
+    .progress-track {
+      flex: 1;
+      height: 3px;
+      background: var(--border);
+      border-radius: 2px;
+      overflow: hidden;
+    }
+    .progress-fill {
+      height: 100%;
+      background: var(--accent);
+      border-radius: 2px;
+      transition: width 0.3s ease;
+    }
+    .progress-label {
+      font-size: 11px;
+      color: var(--muted);
+      font-style: italic;
+      white-space: nowrap;
+    }
+
+    /* ── Pages ── */
+
+    .page { display: none; flex-direction: column; gap: 10px; }
+    .page.active { display: flex; }
+
+    /* ── Section header (page title + subtitle) ── */
+
+    .section-head { margin-bottom: 20px; }
+    .section-head h2 {
+      font-size: 17px;
+      font-weight: normal;
+      font-style: italic;
+      color: var(--text);
+      margin-bottom: 4px;
+    }
+    .section-head p {
+      font-size: 12.5px;
+      color: var(--muted);
+      font-style: italic;
+      line-height: 1.5;
+    }
+
+    /* ── Sub-section labels ── */
+
+    .sublabel {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #bbb;
+      margin: 10px 0 2px;
+    }
+
+    /* ── Survey divider ── */
+
+    .survey-divider {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 8px 0;
+    }
+
+    /* ── Consent page ── */
+
+    .consent-body {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 22px 24px;
+      font-size: 13px;
+      line-height: 1.75;
+      color: #3a3a3a;
+    }
+    .consent-body h3 {
+      font-size: 14px;
+      font-weight: normal;
+      font-style: italic;
+      margin-bottom: 12px;
+      color: var(--text);
+    }
+    .consent-body ul { padding-left: 20px; margin: 10px 0; }
+    .consent-body li { margin-bottom: 4px; }
+    .consent-check {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      margin-top: 18px;
+      font-size: 13px;
+    }
+    .consent-check input[type="checkbox"] {
+      margin-top: 3px;
+      width: 16px; height: 16px;
+      cursor: pointer; flex-shrink: 0;
+    }
+
+    /* ── Debrief page ── */
+
+    .debrief-body {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 22px 24px;
+      font-size: 13px;
+      line-height: 1.75;
+      color: #3a3a3a;
+    }
+    .debrief-body h3 {
+      font-size: 14px;
+      font-weight: normal;
+      font-style: italic;
+      margin-bottom: 12px;
+    }
+
+    /* ── Matrix fieldset ── */
+
+    fieldset.matrix {
+      border: none;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    /* ── Short/long answer + dropdown ── */
+
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 14px 16px;
+    }
+    .field label { font-size: 13.5px; font-style: italic; color: var(--text); }
+    .field input[type="text"],
+    .field textarea,
+    .field select {
+      font-family: var(--font);
+      font-size: 13px;
+      padding: 7px 10px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      background: #fff;
+      color: var(--text);
+      resize: vertical;
+    }
+
+    /* ── Checkbox / radio groups ── */
+
+    fieldset.option-group {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 14px 16px;
+    }
+    fieldset.option-group legend {
+      font-size: 13.5px;
+      font-style: italic;
+      color: var(--text);
+      padding: 0 4px;
+    }
+    .options { display: flex; flex-direction: column; gap: 6px; margin-top: 10px; }
+    .options label {
+      font-size: 13px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+    }
+
+    /* ── Demographics block ── */
+
+    .demo-block {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 18px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+    .demo-field {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      font-size: 13px;
+    }
+    .demo-label { font-style: italic; color: var(--muted); }
+    .demo-field select,
+    .demo-field input[type="text"] {
+      font-family: var(--font);
+      font-size: 13px;
+      padding: 6px 10px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      background: #fff;
+      color: var(--text);
+    }
+
+    /* ── Navigation ── */
+
+    .nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 24px;
+    }
+    .nav-btn {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      padding: 9px 20px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: #fff;
+      font-family: var(--font);
+      font-size: 13px;
+      color: var(--text);
+      cursor: pointer;
+      transition: background 0.14s, border-color 0.14s;
+    }
+    .nav-btn:hover { background: #f5f2ec; border-color: #ccc; }
+    .nav-btn:disabled { opacity: 0.3; cursor: default; }
+    .nav-btn:disabled:hover { background: #fff; border-color: var(--border); }
+    .nav-btn.primary {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #fff;
+    }
+    .nav-btn.primary:hover { background: #2d5a8a; border-color: #2d5a8a; }
+
+    .page-indicator {
+      font-size: 11.5px;
+      color: var(--muted);
+      font-style: italic;
+    }
+
+    /* ── UI intro card (first content page) ── */
+
+    .ui-intro {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 16px 20px 18px;
+      margin-bottom: 8px;
+      font-size: 12.5px;
+      line-height: 1.65;
+      color: #555;
+    }
+    .ui-intro-heading {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      color: #bbb;
+      margin-bottom: 12px;
+    }
+    .ui-intro-items {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .ui-intro-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+    }
+    .ui-intro-icon {
+      flex-shrink: 0;
+      font-size: 15px;
+      padding-top: 1px;
+      display: flex;
+      align-items: center;
+      gap: 1px;
+      min-width: 52px;
+    }
+    /* Tiny fake crosshair demo in the icon */
+    .ui-dot {
+      display: inline-block;
+      width: 10px; height: 10px;
+      border-radius: 50%;
+      border: 1.5px solid #ccc;
+      background: #fff;
+      vertical-align: middle;
+      margin: 0 1px;
+    }
+    .ui-dot--sel {
+      border: none;
+      background: transparent;
+      font-size: 13px;
+      line-height: 1;
+      width: auto; height: auto;
+    }
+    .ui-intro-text { font-style: italic; }
+    .ui-intro-text strong { font-style: normal; display: block; margin-bottom: 2px; }
+
+    button {
+      font-family: unset;
+    }
+
+    /* ── Post-submit notice ── */
+
+    .submitted-notice {
+      display: none;
+      text-align: center;
+      padding: 60px 20px;
+      font-style: italic;
+      color: var(--muted);
+      font-size: 15px;
+      line-height: 1.7;
+    }
+    .submitted-notice.visible { display: block; }
+
+    .ui-intro-text .material-symbols-outlined {
+      font-size: 14px;
+      vertical-align: middle;
+    }
+
+    /* ── Interview opt-in panel ── */
+
+    .interview-panel {
+      display: none;
+      margin-top: 32px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 24px 28px;
+      font-family: var(--font);
+    }
+    .interview-panel h3 {
+      font-size: 14px;
+      font-weight: normal;
+      font-style: italic;
+      color: var(--text);
+      margin-bottom: 8px;
+    }
+    .interview-panel p {
+      font-size: 12.5px;
+      color: var(--muted);
+      font-style: italic;
+      line-height: 1.6;
+      margin-bottom: 16px;
+    }
+    .interview-field {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      margin-bottom: 12px;
+    }
+    .interview-field label {
+      font-size: 12px;
+      font-style: italic;
+      color: var(--muted);
+    }
+    .interview-field input[type="email"],
+    .interview-field textarea {
+      font-family: var(--font);
+      font-size: 13px;
+      padding: 7px 10px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      background: #fff;
+      color: var(--text);
+      resize: vertical;
+    }
+    .interview-field input[type="email"]:focus,
+    .interview-field textarea:focus {
+      outline: none;
+      border-color: var(--accent);
+    }
+    .interview-error {
+      display: none;
+      font-size: 12px;
+      color: var(--error);
+      font-style: italic;
+      margin-bottom: 10px;
+    }
+    .interview-confirm {
+      display: none;
+      margin-top: 32px;
+      text-align: center;
+      padding: 32px 20px;
+      font-style: italic;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.7;
+    }
+  </style>
+</head>
+<body>
+<div class="shell">
+
+  <!-- Restore banner -->
+  <div class="restore-banner" id="restoreBanner" role="status">
+    <span>Saved responses were found from a previous session.</span>
+    <div style="display:flex;gap:8px">
+      <button id="restoreYes">Restore</button>
+      <button id="restoreNo">Start fresh</button>
+    </div>
+  </div>
+
+  <!-- Progress bar -->
+  <div class="progress-wrap" id="progressWrap">
+    <div class="progress-track">
+      <div class="progress-fill" id="progressFill"></div>
+    </div>
+    <span class="progress-label" id="progressLabel"></span>
+  </div>
+
+  <!-- Survey form — pages injected here by the parser at runtime -->
+  <form id="surveyForm" novalidate>
+<div class="page active" data-page="0">
+<div class="section-head">
+  <h2>Before you begin</h2>
+  <p>Please read the following before continuing.</p>
+</div>
+<div class="consent-body">
+  <h3>About this study</h3>
+  <p>
+    This survey is exploring a specific type of social uncertainty — the experience of feeling
+    unable to locate an adequate point of comparison for your own situation. This is
+    <strong>independent research</strong>, not affiliated with any institution or funded body.
+  </p>
+  <p style="margin-top:10px">What this involves:</p>
+  <ul>
+    <li>Approximately 8–10 minutes of your time</li>
+    <li>Questions about your life circumstances, social comparisons, and how you feel about them</li>
+    <li>Some questions may prompt reflection on topics you haven't considered before; try to give them genuine consideration and answer honestly.</li>
+  </ul>
+  <p style="margin-top:10px">
+    All questions are <strong>optional</strong> — you may skip any you prefer not to answer.
+    Responses are collected anonymously. No identifying information is stored.
+    You may close the survey at any time; your progress will be saved in your browser until you submit or clear it.
+  </p>
+  <label class="consent-check">
+    <input type="checkbox" id="consentCheck" name="consent" value="yes">
+    <span>I have read the above and agree to participate voluntarily.</span>
+  </label>
+</div>
+</div>
+<div class="page" data-page="1">
+<div class="section-head">
+  <h2>Your life path</h2>
+  <p>These questions are about transitions and circumstances in your life.</p>
+</div>
+<div class="ui-intro">
+  <p class="ui-intro-heading">A note on two features of this survey</p>
+  <div class="ui-intro-items">
+    <div class="ui-intro-item">
+      <div class="ui-intro-text">
+        <strong>Some questions ask how you feel about your answer.</strong>
+        Once you select a point on the scale, that dot becomes an emoji —
+        use the 🞃🞁 buttons above and below it to cycle through:
+        <span class="material-symbols-outlined">sentiment_satisfied</span> positive &nbsp;·&nbsp; <span class="material-symbols-outlined">sentiment_neutral</span> neutral &nbsp;·&nbsp; <span class="material-symbols-outlined">sentiment_dissatisfied</span> negative &nbsp;·&nbsp; <span class="material-symbols-outlined">circle</span> unsure or decline to answer.
+        This is entirely optional; you can leave the emoji as-is or ignore it.
+      </div>
+    </div>
+    <div class="ui-intro-item">
+      <div class="ui-intro-text">
+        <strong>Every question has an optional text field.</strong>
+        Click on the blue line below a question card to reveal a small box where you can
+        say more about your response in your own words. This is entirely
+        optional and will not affect your other answers.
+      </div>
+    </div>
+  </div>
+</div>
+<div class="sublabel"></div>
+<likert-scale name="q_lc_mobility" question="My current social world is quite different from the one I grew up in." elaboration></likert-scale>
+<likert-scale name="q_lc_transition" question="In the past few years, I have gone through a significant change in social context — finishing education, moving somewhere new, a major shift in my social circle, or something similar." elaboration></likert-scale>
+<likert-valence name="q_lc_support" question="I have close relationships with people I can talk to honestly about my life and situation." tagged elaboration></likert-valence>
+<likert-scale name="q_lc_pioneer" question="The path I am on is one that few or no people in my immediate circle have taken before." elaboration></likert-scale>
+<likert-valence name="q_lc_unusual" question="I would describe myself as occupying an unusual, unlikely, or hard-to-categorise position — socially, professionally, or both." tagged elaboration></likert-valence>
+<div class="sublabel"></div>
+<likert-scale name="q_ch_religion" question="I grew up in a household where religion or a strong shared value system played a significant role." elaboration></likert-scale>
+<likert-scale name="q_ch_cultural_distance" question="The community or culture I grew up in feels quite different from the one I live in now." elaboration></likert-scale>
+<likert-scale name="q_ch_upheaval" question="My family moved significantly — geographically, socially, or both — during my childhood or adolescence." elaboration></likert-scale>
+</div>
+<div class="page" data-page="2">
+<div class="sublabel"></div>
+<likert-valence name="q_sc_available" question="When I think about how my life is going, I can easily think of people I would naturally compare myself to." tagged elaboration></likert-valence>
+<likert-valence name="q_sc_goals" question="I know people who are working toward goals similar to my own." tagged elaboration></likert-valence>
+<likert-valence name="q_sc_calibrated" question="I have a reasonable sense of how my situation compares to people in a similar position to me." tagged elaboration></likert-valence>
+<div class="sublabel"></div>
+<likert-valence name="q_na_model" question="I can think of a person, community, or general type of person whose way of living I find myself using as an example." tagged elaboration></likert-valence>
+<likert-valence name="q_na_guidance" question="When I face a decision I am uncertain about, I can usually think of someone whose approach to life feels relevant to my situation." tagged elaboration></likert-valence>
+<likert-valence name="q_na_norms" question="I have a general sense of what standards or expectations apply to someone in my position." tagged elaboration></likert-valence>
+<likert-valence name="q_na_authority" question="There are people I feel I can trust and look up to." tagged elaboration></likert-valence>
+</div>
+<div class="page" data-page="3">
+<div class="section-head">
+  <h2>For this set of questions, please think about your own experience over the past few months.</h2>
+</div>
+<div class="sublabel"></div>
+<likert-scale name="q_ep_goals" question="I sometimes find it genuinely difficult to know whether my goals are realistic — not because I doubt myself, but because I have no clear sense of what realistic looks like from where I am standing." reverse elaboration></likert-scale>
+<likert-scale name="q_ep_success" question="It is usually clear to me what doing well would actually look like, given how specific and unusual my circumstances are." elaboration></likert-scale>
+<likert-scale name="q_ep_worse" question="I sometimes worry that things are going significantly worse than I think, because I'm not sure anyone would tell me if they were." reverse elaboration></likert-scale>
+<likert-scale name="q_ep_assess" question="I trust my self-assessment of how my life is going." elaboration></likert-scale>
+<div class="sublabel"></div>
+<likert-valence name="q_lg_appear" question="More than I used to, I find it difficult to know how I come across — not because I lack self-awareness, but because I have no reliable way of checking." tagged elaboration></likert-valence>
+<likert-valence name="q_lg_signal" question="I find it harder than I used to to know whether the impression I make on people is the one I intend." tagged elaboration></likert-valence>
+<likert-scale name="q_lg_feedback" question="I get enough feedback from the people and situations around me to have a reasonable sense of how I am coming across." elaboration></likert-scale>
+<likert-valence name="q_lg_blank" question="There are moments when my sense of how I appear to others, or even to myself, feels strangely inaccessible, in a way I find unsettling." tagged likert-labels="Never,Less than once a month,Once or twice a month,Once or twice a week,Every day" elaboration></likert-valence>
+<likert-valence name="q_lg_certain" question="It occurs to me that my self-perception could be significantly off, and find I have no way to rule that out." tagged likert-labels="Never,Less than once a month,Once or twice a month,Once or twice a week,Every day" elaboration></likert-valence>
+<likert-scale name="q_ep_secondguess" question="I find myself second-guessing my read of social situations, because I am concerned that I have no way of confirming I am right." reverse likert-labels="Never,Less than once a month,Once or twice a month,Once or twice a week,Every day" elaboration></likert-scale>
+</div>
+<div class="page" data-page="4">
+<div class="sublabel"></div>
+<likert-valence name="q_ng_guidance" question="I sometimes find myself wishing for a clearer sense of what I am supposed to want — not because I lack preferences, but because I have no way of knowing whether my preferences are appropriate to someone in my position." tagged elaboration></likert-valence>
+<likert-valence name="q_ng_permission" question="I feel as though nobody has given me permission to live the way I do, or as though my life has not been validated by anyone living similarly." tagged elaboration></likert-valence>
+<likert-valence name="q_ng_effortful" question="My sense of where I belong has been something I have had to construct deliberately, rather than something I simply found." tagged elaboration></likert-valence>
+<likert-scale name="q_ng_norms" question="I have a fairly clear sense of what is expected of someone in my position — the standards that would apply to me." elaboration></likert-scale>
+<likert-valence name="q_ng_feedback_hunger" question="I find that any kind of outside feedback (e.g. a compliment or a criticism) feels more significant to me than it probably should." tagged elaboration></likert-valence>
+<likert-valence name="q_ng_groundless" question="There are times when I feel as though I am socially untethered." tagged elaboration></likert-valence>
+</div>
+<div class="page" data-page="5">
+<div class="sublabel"></div>
+<likert-scale name="q_dr_orient" question="The social world sometimes feels difficult to orient myself within — as though the usual landmarks do not quite apply to me." reverse elaboration></likert-scale>
+<likert-scale name="q_dr_stable_broad" question="I have a stable sense of where I fit in the broader social landscape." elaboration></likert-scale>
+<likert-scale name="q_dr_stable_self" question="I usually have a consistent sense of my goals, preferences, and identity." elaboration></likert-scale>
+<likert-scale name="q_dr_unreal" question="There are moments when the social structures that seem to organise other people's lives feel somewhat unreal or inapplicable to my own." reverse elaboration></likert-scale>
+<div class="sublabel"></div>
+<likert-valence name="q_al_belong" question="I feel that I belong, in a meaningful way, to at least one group or community." tagged elaboration></likert-valence>
+<likert-valence name="q_al_aware" question="I am actively aware of not having a group I feel I fully belong to." tagged elaboration></likert-valence>
+<likert-valence name="q_al_partial" question="There are groups I feel close to in some ways, but where I would not quite describe myself as a member." tagged elaboration></likert-valence>
+<likert-valence name="q_al_understood" question="People around me generally understand my background and circumstances without needing much explanation." tagged elaboration></likert-valence>
+<likert-valence name="q_al_categorise" question="My background or identity is difficult to explain or fit into the categories people usually use." tagged elaboration></likert-valence>
+</div>
+<div class="page" data-page="6">
+<div class="section-head">
+  <h2>For this set of questions, think about your typical feelings and behaviours and try to answer as accurately and honestly as possible.</h2>
+</div>
+<div class="sublabel"></div>
+<likert-scale name="q41" question="I often compare how my loved ones are doing with how others are doing." elaboration></likert-scale>
+<likert-scale name="q42" question="I always pay a lot of attention to how I do things compared with how others do things." elaboration></likert-scale>
+<likert-scale name="q43" question="If I want to find out how well I have done something, I compare what I have done with how others have done." elaboration></likert-scale>
+<likert-scale name="q44" question="I often compare how I am doing socially (e.g., social skills, popularity) with other people." elaboration></likert-scale>
+<likert-scale name="q45" question="I am not the type of person who compares often with others." reverse elaboration></likert-scale>
+<likert-scale name="q46" question="I often compare myself with others with respect to what I have accomplished in life." elaboration></likert-scale>
+<likert-scale name="q47" question="I often like to talk with others about mutual opinions and experiences." elaboration></likert-scale>
+<likert-scale name="q48" question="I often try to find out what others think who face similar problems as I face." elaboration></likert-scale>
+<likert-scale name="q49" question="I always like to know what others in a similar situation would do." elaboration></likert-scale>
+<likert-scale name="q50" question="If I want to learn more about something, I try to find out what others think about it." elaboration></likert-scale>
+<likert-scale name="q51" question="I never consider my situation in life relative to that of other people." reverse elaboration></likert-scale>
+<div class="sublabel"></div>
+<likert-scale name="q_ucla_1" question="How often do you feel that you lack companionship?" likert-labels="Never,Rarely,Sometimes,Often,Always" elaboration></likert-scale>
+<likert-scale name="q_ucla_2" question="How often do you feel left out?" likert-labels="Never,Rarely,Sometimes,Often,Always" elaboration></likert-scale>
+<likert-scale name="q_ucla_3" question="How often do you feel isolated from others?" likert-labels="Never,Rarely,Sometimes,Often,Always" elaboration></likert-scale>
+<div class="sublabel"></div>
+<likert-scale name="q_neuroticism_1" question="I am relaxed most of the time." reverse likert-labels="Very inaccurate,Moderately inaccurate,Neither inaccurate nor accurate,Moderately accurate,Very accurate" elaboration></likert-scale>
+<likert-scale name="q_neuroticism_2" question="I get upset easily." likert-labels="Very inaccurate,Moderately inaccurate,Neither inaccurate nor accurate,Moderately accurate,Very accurate" elaboration></likert-scale>
+<likert-scale name="q_neuroticism_3" question="I often feel blue." likert-labels="Very inaccurate,Moderately inaccurate,Neither inaccurate nor accurate,Moderately accurate,Very accurate" elaboration></likert-scale>
+<likert-scale name="q_neuroticism_4" question="I worry about things." likert-labels="Very inaccurate,Moderately inaccurate,Neither inaccurate nor accurate,Moderately accurate,Very accurate" elaboration></likert-scale>
+<div class="sublabel"></div>
+<likert-scale name="q_extraversion_1" question="I am the life of the party." likert-labels="Very inaccurate,Moderately inaccurate,Neither inaccurate nor accurate,Moderately accurate,Very accurate" elaboration></likert-scale>
+<likert-scale name="q_extraversion_2" question="I don't talk a lot." reverse likert-labels="Very inaccurate,Moderately inaccurate,Neither inaccurate nor accurate,Moderately accurate,Very accurate" elaboration></likert-scale>
+<likert-scale name="q_extraversion_3" question="I feel comfortable around people." likert-labels="Very inaccurate,Moderately inaccurate,Neither inaccurate nor accurate,Moderately accurate,Very accurate" elaboration></likert-scale>
+<likert-scale name="q_extraversion_4" question="I keep in the background." reverse likert-labels="Very inaccurate,Moderately inaccurate,Neither inaccurate nor accurate,Moderately accurate,Very accurate" elaboration></likert-scale>
+<div class="sublabel"></div>
+<likert-scale name="q_openness_1" question="I have a vivid imagination." likert-labels="Very inaccurate,Moderately inaccurate,Neither inaccurate nor accurate,Moderately accurate,Very accurate" elaboration></likert-scale>
+<likert-scale name="q_openness_2" question="I have difficulty understanding abstract ideas." reverse likert-labels="Very inaccurate,Moderately inaccurate,Neither inaccurate nor accurate,Moderately accurate,Very accurate" elaboration></likert-scale>
+<likert-scale name="q_openness_3" question="I am quick to understand things." likert-labels="Very inaccurate,Moderately inaccurate,Neither inaccurate nor accurate,Moderately accurate,Very accurate" elaboration></likert-scale>
+<likert-scale name="q_openness_4" question="I use difficult words." likert-labels="Very inaccurate,Moderately inaccurate,Neither inaccurate nor accurate,Moderately accurate,Very accurate" elaboration></likert-scale>
+<div class="sublabel"></div>
+<likert-scale name="q_agreeableness_1" question="I am interested in people." likert-labels="Very inaccurate,Moderately inaccurate,Neither inaccurate nor accurate,Moderately accurate,Very accurate" elaboration></likert-scale>
+<likert-scale name="q_agreeableness_2" question="I insult people." reverse likert-labels="Very inaccurate,Moderately inaccurate,Neither inaccurate nor accurate,Moderately accurate,Very accurate" elaboration></likert-scale>
+<likert-scale name="q_agreeableness_3" question="I sympathize with others' feelings." likert-labels="Very inaccurate,Moderately inaccurate,Neither inaccurate nor accurate,Moderately accurate,Very accurate" elaboration></likert-scale>
+<likert-scale name="q_agreeableness_4" question="I am not interested in other people's problems." reverse likert-labels="Very inaccurate,Moderately inaccurate,Neither inaccurate nor accurate,Moderately accurate,Very accurate" elaboration></likert-scale>
+<div class="sublabel"></div>
+<likert-scale name="q_conscientiousness_1" question="I am always prepared." likert-labels="Very inaccurate,Moderately inaccurate,Neither inaccurate nor accurate,Moderately accurate,Very accurate" elaboration></likert-scale>
+<likert-scale name="q_conscientiousness_2" question="I leave my belongings around." reverse likert-labels="Very inaccurate,Moderately inaccurate,Neither inaccurate nor accurate,Moderately accurate,Very accurate" elaboration></likert-scale>
+<likert-scale name="q_conscientiousness_3" question="I pay attention to details." likert-labels="Very inaccurate,Moderately inaccurate,Neither inaccurate nor accurate,Moderately accurate,Very accurate" elaboration></likert-scale>
+<likert-scale name="q_conscientiousness_4" question="I make a mess of things." reverse likert-labels="Very inaccurate,Moderately inaccurate,Neither inaccurate nor accurate,Moderately accurate,Very accurate" elaboration></likert-scale>
+</div>
+<div class="page" data-page="7">
+<div class="section-head">
+  <h2>Background</h2>
+  <p>These questions help contextualise your other responses. All are optional.</p>
+</div>
+<div class="sublabel"></div>
+<div class="field">
+  <label for="q_open_explanation">If you had any thoughts about what might be behind the feelings described in this survey — causes, patterns, or anything else — you're welcome to write them; all opinions are helpful! (If you don't want to write anything, just leave the box blank.)</label>
+  <textarea id="q_open_explanation" name="q_open_explanation" rows="4"></textarea>
+</div>
+<div class="sublabel"></div>
+<div class="demo-block">
+  <label class="demo-field">
+    <span class="demo-label">Age range</span>
+    <select name="demo_age">
+      <option value="">Prefer not to say</option>
+      <option>Under 18</option><option>18–24</option><option>25–34</option>
+      <option>35–44</option><option>45–54</option><option>55+</option>
+    </select>
+  </label>
+  <label class="demo-field">
+    <span class="demo-label">Country of residence</span>
+    <input type="text" name="demo_country" placeholder="e.g. Australia" autocomplete="off">
+  </label>
+  <label class="demo-field">
+    <span class="demo-label">Highest completed education</span>
+    <select name="demo_edu">
+      <option value="">Prefer not to say</option>
+      <option>Secondary / high school</option>
+      <option>Vocational / trade qualification</option>
+      <option>Undergraduate degree (in progress)</option>
+      <option>Undergraduate degree (completed)</option>
+      <option>Postgraduate degree</option>
+    </select>
+  </label>
+  <label class="demo-field">
+    <span class="demo-label">Do you identify as neurodivergent?</span>
+    <select name="demo_nd">
+      <option value="">Prefer not to say</option>
+      <option>Yes</option><option>No</option><option>Unsure</option>
+    </select>
+  </label>
+</div>
+<div class="sublabel"></div>
+<fieldset class="option-group">
+  <legend>Please select any of the following that apply to you. This is not to do with formal diagnoses — if you usually identify with a particular label on a symptomatic basis, or are being treated for some disorder, you should tick that box.</legend>
+  <div class="options">
+    <label><input type="checkbox" id="q_diagnoses_0" name="q_diagnoses" value="Depression or depressive disorder"> Depression or depressive disorder</label>
+    <label><input type="checkbox" id="q_diagnoses_1" name="q_diagnoses" value="Generalised anxiety"> Generalised anxiety</label>
+    <label><input type="checkbox" id="q_diagnoses_2" name="q_diagnoses" value="Social anxiety"> Social anxiety</label>
+    <label><input type="checkbox" id="q_diagnoses_3" name="q_diagnoses" value="Obsessive-compulsive disorder"> Obsessive-compulsive disorder</label>
+    <label><input type="checkbox" id="q_diagnoses_4" name="q_diagnoses" value="Dissociative disorder"> Dissociative disorder</label>
+    <label><input type="checkbox" id="q_diagnoses_5" name="q_diagnoses" value="Derealisation-depersonalisation disorder"> Derealisation-depersonalisation disorder</label>
+    <label><input type="checkbox" id="q_diagnoses_6" name="q_diagnoses" value="Any long-term disorder with psychotic features"> Any long-term disorder with psychotic features</label>
+    <label><input type="checkbox" id="q_diagnoses_7" name="q_diagnoses" value="Bipolar disorder"> Bipolar disorder</label>
+    <label><input type="checkbox" id="q_diagnoses_8" name="q_diagnoses" value="Autism spectrum condition"> Autism spectrum condition</label>
+    <label><input type="checkbox" id="q_diagnoses_9" name="q_diagnoses" value="PTSD or C-PTSD"> PTSD or C-PTSD</label>
+    <label><input type="checkbox" id="q_diagnoses_10" name="q_diagnoses" value="None of the above"> None of the above</label>
+    <label><input type="checkbox" id="q_diagnoses_11" name="q_diagnoses" value="Prefer not to say"> Prefer not to say</label>
+  </div>
+</fieldset>
+</div>
+<div class="page" data-page="8">
+<div class="section-head">
+  <h2>Almost done</h2>
+  <p>Please read the following before submitting.</p>
+</div>
+<div class="debrief-body">
+  <h3>What this study is about</h3>
+  <p>
+    This survey is exploring whether certain life circumstances — such as occupying an unusual
+    or hard-to-categorise social position — are associated with a specific form of social
+    uncertainty: difficulty locating an adequate point of comparison for one's own situation.
+  </p>
+  <p>
+    This survey is an exploratory/preliminary investigation into whether certain life circumstances can produce a theoretical form of anomie involving self-doubt.
+    It doesn't mean anything clinically, and is just looking at statistical correlations. 
+  </p>
+  <p style="font-weight: bold">
+    If you felt like you connected strongly with the emotions being discussed, and you want to discuss them, I am looking for interview candidates for a semi-structured interview.
+  </p>
+  <p style="margin-top:10px">
+    Your responses are stored in a Google Sheet. Data is stored anonymously and will be deleted after analysis is complete.<br>
+    If you submitted a textual response, your answers may be coded & analysed thematically.
+  </p>
+</div>
+</div>
+  </form>
+
+  <!-- Navigation -->
+  <div class="nav" id="nav">
+    <button class="nav-btn" id="btnBack" type="button">← Back</button>
+    <span class="page-indicator" id="pageIndicator"></span>
+    <button class="nav-btn primary" id="btnNext" type="button">Next →</button>
+  </div>
+
+  <!-- Submission error (shown inline if POST fails) -->
+  <div id="submitError" style="display:none;margin-top:12px;padding:10px 14px;
+       background:#fff3f3;border:1px solid #e4a0a0;border-radius:8px;
+       font-family:Georgia,serif;font-size:12.5px;color:#5a2020;font-style:italic;">
+  </div>
+
+  <!-- Post-submit -->
+  <div class="submitted-notice" id="submittedNotice">
+    <p>Your response has been submitted. Thank you.</p>
+    <p style="font-size:12px;margin-top:8px">You may now close this page.</p>
+  </div>
+
+
+  <!-- Interview opt-in (shown after submit if @interview: is configured) -->
+  <div class="interview-panel" id="interviewPanel">
+    <h3>Interested in an interview?</h3>
+    <p>
+      If you felt you resonated with the experiences mentioned, and you want to discuss them, 
+      I am looking for candidates for a semi-structured interview. If you're interested, you can enter your email address.<br>
+      This is sent separately from the survey data and goes to my email inbox instead of to the main storage location. 
+    </p>
+    <div class="interview-field">
+      <label for="interviewEmail">Email address</label>
+      <input type="email" id="interviewEmail" placeholder="your@email.com" autocomplete="email">
+    </div>
+    <div class="interview-field">
+      <label for="interviewMessage">Anything you'd like to add? (optional)</label>
+      <textarea id="interviewMessage" rows="3" placeholder="e.g. any particular thing you'd like to discuss"></textarea>
+    </div>
+    <div class="interview-error" id="interviewError"></div>
+    <button class="nav-btn primary" id="interviewSubmit" type="button">Send</button>
+  </div>
+
+  <!-- Interview opt-in confirmation -->
+  <div class="interview-confirm" id="interviewConfirm">
+    <p>Thank you — I'll be in touch.</p>
+  </div>
+</div><!-- .shell -->
+
+<script>window.__SURVEY_META__ = {"title":"Social Comparison","submitUrl":"https://script.google.com/macros/s/AKfycbwtXeFsbjHKIoWpf567lWfMMaF2BMVoBo73SwnRVgO4fFhKmY0jg5ozHkzxky5TJ2vokA/exec","submitSecret":"Kgzdf3SkObIHB7qhosEYgG36Pc9yVF0dyXWJ6g1QXmlSGXpTEdlcHT7OvtqABR7C","storageKey":"social_comparison_v1","interviewUrl":"PASTE_YOUR_INTERVIEW_DEPLOYMENT_URL_HERE"};</script>
+<script src="main.js"></script>
+</body>
+</html>
