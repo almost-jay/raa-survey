@@ -82,7 +82,7 @@
   .dot-label {
     font-size: 9.5px; color: #999; font-style: italic;
     text-align: center; 
-    max-width: 156px; 
+    max-width: 10vw; 
     line-height: 1.25;
     pointer-events: none;
     user-select: none; 
@@ -147,6 +147,27 @@
     white-space: nowrap;
     direction: ltr;
     color: #3a6ea5;
+  }
+
+  /* \u2500\u2500 Mobile layout \u2014 question above track \u2500\u2500 */
+  @media (max-width: 820px) {
+    .row {
+      flex-direction: column;
+      align-items: stretch;
+      gap: 10px;
+      padding: 12px 14px 10px;
+    }
+    .question {
+      flex: none;
+      width: 100%;
+      font-size: 13px;
+    }
+    .likert-track {
+      width: 100%;
+    }
+    .dot-label {
+      max-width: 56px;
+    }
   }
 `;
   function getLabels(el) {
