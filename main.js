@@ -11,7 +11,7 @@
     "Strongly disagree",
     "Slightly disagree",
     "Somewhat/Neutral",
-    "Mostly agree",
+    "Agree",
     "Completely agree"
   ];
   var ROW_STYLES = `
