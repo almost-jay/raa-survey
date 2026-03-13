@@ -38,35 +38,6 @@
       margin: 0 auto;
     }
 
-    /* ── Restore banner ── */
-
-    .restore-banner {
-      display: none;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-      padding: 10px 16px;
-      background: #fff8e8;
-      border: 1px solid #e8d88a;
-      border-radius: 8px;
-      margin-bottom: 20px;
-      font-size: 12.5px;
-      color: #7a6020;
-      font-style: italic;
-    }
-    .restore-banner.visible { display: flex; }
-    .restore-banner button {
-      background: none;
-      border: 1px solid #c8b860;
-      border-radius: 5px;
-      padding: 4px 10px;
-      font-family: var(--font);
-      font-size: 12px;
-      color: #7a6020;
-      cursor: pointer;
-    }
-    .restore-banner button:hover { background: #fff3c8; }
-
     /* ── Progress bar ── */
 
     .progress-wrap {
@@ -464,15 +435,6 @@
 <body>
 <div class="shell">
 
-  <!-- Restore banner -->
-  <div class="restore-banner" id="restoreBanner" role="status">
-    <span>Saved responses were found from a previous session.</span>
-    <div style="display:flex;gap:8px">
-      <button id="restoreYes">Restore</button>
-      <button id="restoreNo">Start fresh</button>
-    </div>
-  </div>
-
   <!-- Progress bar -->
   <div class="progress-wrap" id="progressWrap">
     <div class="progress-track">
@@ -777,7 +739,7 @@
   </div>
 </div><!-- .shell -->
 
-<script>window.__SURVEY_META__ = {"title":"Social Comparison","submitUrl":"https://script.google.com/macros/s/AKfycbxy5Jg_9pYcQi-6kHrJ2zm2LGYNzDdwBXwog8NBdgC3ANSy-77a86AnH9jH3zjkCdXGWQ/exec","submitSecret":"Kgzdf3SkObIHB7qhosEYgG36Pc9yVF0dyXWJ6g1QXmlSGXpTEdlcHT7OvtqABR7C","storageKey":"social_comparison_v1","interviewUrl":"https://script.google.com/macros/s/AKfycbyf-TVjUvVuEImYaC7NaQvVwq1nZSMs8viP3lZF2Uj1gnNNLSjUWhdBOAwd6mDqlf3qag/exec"};</script>
+<script>window.__SURVEY_META__ = {"title":"Social Comparison","submitUrl":"https://script.google.com/macros/s/AKfycbyz7v-j62T0GuWbNc_6kG84t3lkmJKdLUeoH_PJ-_K6GPOhMPVdN9x_DV_V00-R9pY7ZA/exec","submitSecret":"Kgzdf3SkObIHB7qhosEYgG36Pc9yVF0dyXWJ6g1QXmlSGXpTEdlcHT7OvtqABR7C","storageKey":"social_comparison_v1","interviewUrl":"https://script.google.com/macros/s/AKfycbyf-TVjUvVuEImYaC7NaQvVwq1nZSMs8viP3lZF2Uj1gnNNLSjUWhdBOAwd6mDqlf3qag/exec"};</script>
 <script src="main.js"></script>
 </body>
 </html>

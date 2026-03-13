@@ -631,7 +631,6 @@
   var pageIndicator = document.getElementById("pageIndicator");
   var nav = document.getElementById("nav");
   var submittedNotice = document.getElementById("submittedNotice");
-  var restoreBanner = document.getElementById("restoreBanner");
   var progressWrap = document.getElementById("progressWrap");
   function init(doc) {
     _config = {
@@ -645,11 +644,12 @@
     form.addEventListener("change", saveToStorage);
     btnNext.addEventListener("click", onNext);
     btnBack.addEventListener("click", onBack);
-    document.getElementById("restoreYes").addEventListener("click", onRestoreYes);
-    document.getElementById("restoreNo").addEventListener("click", onRestoreNo);
     const saved = loadFromStorage();
     if (saved && Object.keys(saved).length > 1) {
-      restoreBanner.classList.add("visible");
+      setTimeout(() => {
+        applyValues(saved);
+        showPage(saved.__page ?? 0);
+      }, 0);
     } else {
       showPage(0);
     }
@@ -743,23 +743,6 @@
     } catch (_) {
     }
   }
-  function onRestoreYes() {
-    restoreBanner.classList.remove("visible");
-    const saved = loadFromStorage();
-    if (!saved) {
-      showPage(0);
-      return;
-    }
-    setTimeout(() => {
-      applyValues(saved);
-      showPage(saved.__page ?? 0);
-    }, 0);
-  }
-  function onRestoreNo() {
-    clearStorage();
-    restoreBanner.classList.remove("visible");
-    showPage(0);
-  }
   async function submitSurvey() {
     const payload = collectValues();
     delete payload["__page"];
@@ -798,7 +781,6 @@
     form.style.display = "none";
     nav.style.display = "none";
     progressWrap.style.display = "none";
-    restoreBanner.classList.remove("visible");
     submittedNotice.classList.add("visible");
     if (_config.interviewUrl) initInterviewPanel();
   }
